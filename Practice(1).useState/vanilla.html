@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <span id = 'text'>Total Clicks: 0</span>
+    <button id = 'btn'>Click me</button>
+    <span id = 'goal'>You reached 10!</span>
+    <form id = 'todo-form'>
+      <input 
+      type = "text"
+      placeholder = "Input text here"
+      id = 'todo-input'
+      required
+      >
+      <button id = 'todo-btn'>Submit</button>
+      <ul id = 'todo-list'></ul>
+    </form>
+    
+  </body>
+  <script>
+    let counter = 0;
+    const btn = document.getElementById("btn");
+    const span = document.querySelector("#text");
+    const goal = document.querySelector("#goal");
+    const todoForm = document.querySelector('#todo-form');
+    const todoInput = document.querySelector('#todo-input');
+    const todoBtn = document.querySelector('#todoBtn');
+    const todoList = document.querySelector('#todo-list');
+    const savedTodoItem = localStorage.getItem('TodoItem');
+
+    let todoItemArray = [];
+
+    todoForm.addEventListener('submit', todoInputHandle);
+
+    function todoInputHandle(event) {
+      event.preventDefault();
+      const todoItemObj = {
+        id: Math.random() * 10e16,
+        text: todoInput.value,
+      };
+      todoItemArray.push(todoItemObj);
+      paintTodoItem(todoItemObj);
+      saveTodoItem();
+      todoInput.value = '';
+    }
+
+    function saveTodoItem() {
+      localStorage.setItem('TodoItem', JSON.stringify(todoItemArray));
+    }
+
+    function paintTodoItem(item) {
+      const wholeList = document.createElement('li');
+      wholeList.id = item.id;
+      const listDesc = document.createElement('span');
+      listDesc.innerText = item.text;
+      const listDeleteBtn = document.createElement('button');
+      listDeleteBtn.innerText = 'X';
+      listDeleteBtn.addEventListener('click', itemDelete);
+      wholeList.appendChild(listDesc);
+      wholeList.appendChild(listDeleteBtn);
+      todoList.appendChild(wholeList);
+    }
+
+    function itemDelete() {
+      const deletedItem = this.parentElement;
+      deletedItem.remove();
+      todoItemArray = todoItemArray.filter((item) => item.id !== parseInt(deletedItem.id));
+      saveTodoItem();
+    }
+
+    if (savedTodoItem) {
+      const parsedItems = JSON.parse(savedTodoItem);
+      todoItemArray = parsedItems;
+      todoItemArray.forEach(paintTodoItem);
+    }
+
+    function buttonHandle() {
+      counter += 1;
+      span.innerText = `Total Clicks: ${counter}`;
+      
+      if (counter % 10 == 0 && counter !== 0) {
+        goal.style.visibility = "visible";
+        goal.innerText = `You reached ${counter}!`
+      } else {
+        goal.style.visibility = 'hidden';
+      }
+    }
+
+    btn.addEventListener('click', buttonHandle);
+  </script>
+  <style>
+    #goal {
+      display: block;
+      font-size: large;
+      font-weight: 700;
+      visibility: hidden;
+    }
+  </style>
+</html>
